@@ -15,27 +15,28 @@
       vr-mode-ui="enabled: false"
       arjs="sourceType: webcam; debugUIEnabled: false;"
       device-orientation-permission-ui="enabled: true"
+      gesture-detector
     >
       <a-assets>
-
         <audio id="elephant-sound" src="assets/sounds/elephant.mp3" preload="auto"></audio>
       </a-assets>
 
       <a-marker type="pattern" url="assets/markers/elephant_marker.patt">
-
-        <a-entity id="elephant-container" gesture-detector rotatable scalable>
+        <a-entity id="elephant-container" rotatable scalable>
 
           <a-entity
             id="elephant"
             gltf-model="assets/models/elephant.glb"
             scale="0.8 0.8 0.8"
             rotation="0 180 0"
+            position="0 0.1 0"
             animation-mixer
             sound="src: #elephant-sound; autoplay: false; loop: true; volume: 0.5"
             sound-toggle
-            position="0 0 0"
+            animation__idle="property: rotation; to: 0 360 0; dur: 5000; loop: true; easing: linear"
+            animation__walk="property: position; to: 1 0 0; dur: 3000; loop: true; easing: linear"
+            visible="true"
           ></a-entity>
-
         </a-entity>
       </a-marker>
 
@@ -43,13 +44,15 @@
     </a-scene>
 
     <script>
+     
       AFRAME.registerComponent('rotatable', {
         init: function () {
-          this.rotation = this.el.getAttribute('rotation') || {x:0, y:0, z:0};
+          this.rotation = this.el.getAttribute('rotation') || {x: 0, y: 0, z: 0};
           this.handleDragMove = this.handleDragMove.bind(this);
-          this.el.addEventListener('dragmove', this.handleDragMove);
+          this.el.sceneEl.addEventListener('dragmove', this.handleDragMove);
         },
         handleDragMove: function (event) {
+          if (event.target !== this.el) return;
           const ROTATION_SPEED = 0.5;
           this.rotation.x -= event.detail.delta.y * ROTATION_SPEED;
           this.rotation.y += event.detail.delta.x * ROTATION_SPEED;
@@ -57,34 +60,32 @@
           this.el.setAttribute('rotation', this.rotation);
         },
         remove: function () {
-          this.el.removeEventListener('dragmove', this.handleDragMove);
+          this.el.sceneEl.removeEventListener('dragmove', this.handleDragMove);
         }
       });
 
       AFRAME.registerComponent('scalable', {
         init: function () {
-          this.scale = this.el.getAttribute('scale') || {x:1, y:1, z:1};
+          this.scale = this.el.getAttribute('scale') || {x: 1, y: 1, z: 1};
           this.handlePinchMove = this.handlePinchMove.bind(this);
-          this.el.addEventListener('pinchmove', this.handlePinchMove);
+          this.el.sceneEl.addEventListener('pinchmove', this.handlePinchMove);
         },
         handlePinchMove: function (event) {
+          if (event.target !== this.el) return;
           const SCALE_SPEED = 0.01;
           let scaleChange = event.detail.scaleChange * SCALE_SPEED;
-          this.scale.x += scaleChange;
-          this.scale.y += scaleChange;
-          this.scale.z += scaleChange;
-          this.scale.x = Math.min(Math.max(this.scale.x, 0.2), 3);
-          this.scale.y = Math.min(Math.max(this.scale.y, 0.2), 3);
-          this.scale.z = Math.min(Math.max(this.scale.z, 0.2), 3);
+          this.scale.x = Math.min(Math.max(this.scale.x * scaleChange, 0.2), 3);
+          this.scale.y = Math.min(Math.max(this.scale.y * scaleChange, 0.2), 3);
+          this.scale.z = Math.min(Math.max(this.scale.z * scaleChange, 0.2), 3);
           this.el.setAttribute('scale', this.scale);
         },
         remove: function () {
-          this.el.removeEventListener('pinchmove', this.handlePinchMove);
+          this.el.sceneEl.removeEventListener('pinchmove', this.handlePinchMove);
         }
       });
 
       AFRAME.registerComponent('sound-toggle', {
-        init: function() {
+        init: function () {
           this.soundPlaying = false;
           this.el.addEventListener('click', () => {
             const sound = this.el.components.sound;
@@ -105,10 +106,36 @@
           const soundComp = elephant.components.sound;
           if (soundComp && !soundComp.isPlaying) {
             soundComp.playSound();
+            elephant.components['sound-toggle'].soundPlaying = true;
           }
         }
       }, { once: true });
+      let animationState = "idle";  
 
+      const elephant = document.querySelector('#elephant');
+      elephant.addEventListener('click', () => {
+        if (animationState === "idle") {
+          elephant.setAttribute('animation__walk', {
+            property: 'position',
+            to: '1 0 0',
+            dur: 3000,
+            loop: true,
+            easing: 'linear'
+          });
+          elephant.setAttribute('animation__idle', { enabled: false });
+          animationState = "walk";
+        } else {
+          elephant.setAttribute('animation__walk', { enabled: false });
+          elephant.setAttribute('animation__idle', {
+            property: 'rotation',
+            to: '0 360 0',
+            dur: 5000,
+            loop: true,
+            easing: 'linear'
+          });
+          animationState = "idle";
+        }
+      });
     </script>
   </body>
 </html>
