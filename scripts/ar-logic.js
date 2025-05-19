@@ -104,22 +104,30 @@ document.body.addEventListener('click', () => {
   });
 })();
 
-// Tiger animation toggle: cycle between "Walk" and "WalkFast"
 (function () {
   const tiger = document.querySelector('#tiger');
   if (!tiger) return;
 
-  const tigerClips = ['Walk', 'WalkFast'];
+  const tigerClips = ['Standing', 'Sleeping'];
   let currentClipIndex = 0;
 
   tiger.addEventListener('click', (event) => {
     event.stopPropagation();
 
-    tiger.setAttribute('animation-mixer', {
-      clip: tigerClips[currentClipIndex],
-      loop: 'repeat'
-    });
+
+    tiger.setAttribute('animation-mixer', { clip: null });  
+    setTimeout(() => {
+      tiger.setAttribute('animation-mixer', {
+        clip: tigerClips[currentClipIndex],
+        loop: 'repeat'
+      });
+    }, 50);
 
     currentClipIndex = (currentClipIndex + 1) % tigerClips.length;
+  });
+
+  tiger.setAttribute('animation-mixer', {
+    clip: tigerClips[0],
+    loop: 'repeat'
   });
 })();
