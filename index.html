@@ -16,32 +16,40 @@
       arjs="sourceType: webcam; debugUIEnabled: false;"
       device-orientation-permission-ui="enabled: true"
     >
+      <a-assets>
 
-      <a-marker type="pattern" url="assets/markers/elephant_marker.patt" gesture-detector rotatable scalable>
+        <audio id="elephant-sound" src="assets/sounds/elephant.mp3" preload="auto"></audio>
+      </a-assets>
 
-        <a-entity
-          id="elephant"
-          gltf-model="assets/models/elephant.glb"
-          scale="0.8 0.8 0.8"
-          rotation="0 180 0"
-          animation-mixer
-          sound="src: url(assets/sounds/elephant.mp3); autoplay: false; loop: true; volume: 0.5"
-          position="0 0 0"
-        ></a-entity>
+      <a-marker type="pattern" url="assets/markers/elephant_marker.patt">
+
+        <a-entity id="elephant-container" gesture-detector rotatable scalable>
+
+          <a-entity
+            id="elephant"
+            gltf-model="assets/models/elephant.glb"
+            scale="0.8 0.8 0.8"
+            rotation="0 180 0"
+            animation-mixer
+            sound="src: #elephant-sound; autoplay: false; loop: true; volume: 0.5"
+            sound-toggle
+            position="0 0 0"
+          ></a-entity>
+
+        </a-entity>
       </a-marker>
 
       <a-entity camera></a-entity>
     </a-scene>
 
     <script>
-
       AFRAME.registerComponent('rotatable', {
         init: function () {
-          this.rotation = this.el.getAttribute('rotation');
-          this.handleDrag = this.handleDrag.bind(this);
-          this.el.addEventListener('dragmove', this.handleDrag);
+          this.rotation = this.el.getAttribute('rotation') || {x:0, y:0, z:0};
+          this.handleDragMove = this.handleDragMove.bind(this);
+          this.el.addEventListener('dragmove', this.handleDragMove);
         },
-        handleDrag: function (event) {
+        handleDragMove: function (event) {
           const ROTATION_SPEED = 0.5;
           this.rotation.x -= event.detail.delta.y * ROTATION_SPEED;
           this.rotation.y += event.detail.delta.x * ROTATION_SPEED;
@@ -49,19 +57,19 @@
           this.el.setAttribute('rotation', this.rotation);
         },
         remove: function () {
-          this.el.removeEventListener('dragmove', this.handleDrag);
+          this.el.removeEventListener('dragmove', this.handleDragMove);
         }
       });
 
       AFRAME.registerComponent('scalable', {
         init: function () {
-          this.scale = this.el.getAttribute('scale');
-          this.handlePinch = this.handlePinch.bind(this);
-          this.el.addEventListener('pinchmove', this.handlePinch);
+          this.scale = this.el.getAttribute('scale') || {x:1, y:1, z:1};
+          this.handlePinchMove = this.handlePinchMove.bind(this);
+          this.el.addEventListener('pinchmove', this.handlePinchMove);
         },
-        handlePinch: function (event) {
+        handlePinchMove: function (event) {
           const SCALE_SPEED = 0.01;
-          const scaleChange = event.detail.scaleChange * SCALE_SPEED;
+          let scaleChange = event.detail.scaleChange * SCALE_SPEED;
           this.scale.x += scaleChange;
           this.scale.y += scaleChange;
           this.scale.z += scaleChange;
@@ -71,25 +79,36 @@
           this.el.setAttribute('scale', this.scale);
         },
         remove: function () {
-          this.el.removeEventListener('pinchmove', this.handlePinch);
+          this.el.removeEventListener('pinchmove', this.handlePinchMove);
         }
       });
 
-      document.querySelector('a-scene').addEventListener('loaded', () => {
-        const soundEntity = document.querySelector('#elephant');
-
-        soundEntity.components.sound.playSound();
-
-        soundEntity.components.sound.pool.children[0].addEventListener('error', () => {
-          function playOnUserInteraction() {
-            soundEntity.components.sound.playSound();
-            window.removeEventListener('click', playOnUserInteraction);
-            window.removeEventListener('touchstart', playOnUserInteraction);
-          }
-          window.addEventListener('click', playOnUserInteraction);
-          window.addEventListener('touchstart', playOnUserInteraction);
-        });
+      AFRAME.registerComponent('sound-toggle', {
+        init: function() {
+          this.soundPlaying = false;
+          this.el.addEventListener('click', () => {
+            const sound = this.el.components.sound;
+            if (!sound) return;
+            if (this.soundPlaying) {
+              sound.pauseSound();
+            } else {
+              sound.playSound();
+            }
+            this.soundPlaying = !this.soundPlaying;
+          });
+        }
       });
+
+      document.body.addEventListener('click', () => {
+        const elephant = document.querySelector('#elephant');
+        if (elephant) {
+          const soundComp = elephant.components.sound;
+          if (soundComp && !soundComp.isPlaying) {
+            soundComp.playSound();
+          }
+        }
+      }, { once: true });
+
     </script>
   </body>
 </html>
