@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Animals Park AR - Elephant</title>
+    <title>Animals Park AR - Elephant (Rotatable)</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://cdn.rawgit.com/jeromeetienne/ar.js/2.0.1/aframe/build/aframe-ar.min.js"></script>
+    <!-- Gesture detector for touch/drag -->
+    <script src="https://unpkg.com/aframe-gesture-detector/dist/aframe-gesture-detector.min.js"></script>
     <style>
       body, html { margin: 0; overflow: hidden; width: 100%; height: 100%; }
     </style>
@@ -17,18 +19,41 @@
     >
       <!-- Marker with your custom pattern file -->
       <a-marker type="pattern" url="assets/markers/elephant_marker.patt">
-        <!-- Your 3D elephant model -->
+        <!-- Rotatable 3D elephant model -->
         <a-entity
+          id="elephant"
           gltf-model="assets/models/elephant.glb"
           scale="0.8 0.8 0.8"
           position="0 0 0"
           rotation="0 180 0"
           animation-mixer
+          gesture-detector
+          rotatable
         ></a-entity>
       </a-marker>
 
       <!-- Camera -->
       <a-entity camera></a-entity>
     </a-scene>
+
+    <script>
+      AFRAME.registerComponent('rotatable', {
+        init: function () {
+          this.rotation = this.el.getAttribute('rotation');
+          this.handleDragMove = this.handleDragMove.bind(this);
+          this.el.addEventListener('dragmove', this.handleDragMove);
+        },
+
+        handleDragMove: function (event) {
+          // Rotate on horizontal drag (deltaX)
+          this.rotation.y += event.detail.delta.x * 0.5; // Adjust sensitivity here
+          this.el.setAttribute('rotation', this.rotation);
+        },
+
+        remove: function () {
+          this.el.removeEventListener('dragmove', this.handleDragMove);
+        }
+      });
+    </script>
   </body>
 </html>
