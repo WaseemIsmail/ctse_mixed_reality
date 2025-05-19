@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Animals Park AR - Elephant</title>
+    <title>Animals Park AR - Elephant Interactive</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://cdn.rawgit.com/jeromeetienne/ar.js/2.0.1/aframe/build/aframe-ar.min.js"></script>
-    <!-- Gesture detector for touch/drag -->
     <script src="https://unpkg.com/aframe-gesture-detector/dist/aframe-gesture-detector.min.js"></script>
     <style>
       body, html { margin: 0; overflow: hidden; width: 100%; height: 100%; }
@@ -17,13 +16,8 @@
       arjs="sourceType: webcam; debugUIEnabled: false;"
       device-orientation-permission-ui="enabled: true"
     >
-      <!-- Marker -->
       <a-marker type="pattern" url="assets/markers/elephant_marker.patt">
-
-        <!-- Container entity to control rotation and scale -->
         <a-entity id="elephant-container" gesture-detector rotatable scalable>
-          
-          <!-- Elephant 3D model -->
           <a-entity
             id="elephant"
             gltf-model="assets/models/elephant.glb"
@@ -31,70 +25,58 @@
             position="0 0 0"
             rotation="0 180 0"
             animation-mixer
-            sound="src: url(assets/sounds/elephant.m4a); autoplay: true; loop: true; volume: 0.5"
+            sound="src: assets/sounds/elephant.mp3; loop: true; volume: 0.5"
+            sound-toggle
           ></a-entity>
-          
         </a-entity>
       </a-marker>
-
-      <!-- Camera -->
       <a-entity camera></a-entity>
     </a-scene>
 
     <script>
-      // Rotation component: rotates model on drag (X and Y)
       AFRAME.registerComponent('rotatable', {
         init: function () {
-          this.rotation = this.el.getAttribute('rotation') || {x:0, y:0, z:0};
+          this.rotation = this.el.getAttribute('rotation') || { x: 0, y: 0, z: 0 };
           this.handleDragMove = this.handleDragMove.bind(this);
-          this.el.addEventListener('dragmove', this.handleDragMove);
+          this.el.sceneEl.addEventListener('dragmove', this.handleDragMove); // Listen on scene for gestures
         },
         handleDragMove: function (event) {
-          // Adjust rotation speed/sensitivity here
           const ROTATION_SPEED = 0.5;
           this.rotation.x -= event.detail.delta.y * ROTATION_SPEED;
           this.rotation.y += event.detail.delta.x * ROTATION_SPEED;
-
-          // Limit vertical rotation so model doesn't flip upside down 
           this.rotation.x = Math.min(Math.max(this.rotation.x, -90), 90);
-
           this.el.setAttribute('rotation', this.rotation);
         },
         remove: function () {
-          this.el.removeEventListener('dragmove', this.handleDragMove);
+          this.el.sceneEl.removeEventListener('dragmove', this.handleDragMove);
         }
       });
 
-      // Scale component: zoom model in/out on pinch
       AFRAME.registerComponent('scalable', {
         init: function () {
-          this.scale = this.el.getAttribute('scale') || {x:1, y:1, z:1};
+          this.scale = this.el.getAttribute('scale') || { x: 1, y: 1, z: 1 };
           this.handlePinchMove = this.handlePinchMove.bind(this);
-          this.el.addEventListener('pinchmove', this.handlePinchMove);
+          this.el.sceneEl.addEventListener('pinchmove', this.handlePinchMove); // Listen on scene
         },
         handlePinchMove: function (event) {
           const SCALE_SPEED = 0.01;
-          let scaleChange = event.detail.scaleChange * SCALE_SPEED;
+          let scaleChange = (event.detail.scaleChange - 1) / SCALE_SPEED;
           this.scale.x += scaleChange;
           this.scale.y += scaleChange;
           this.scale.z += scaleChange;
-
-          // Clamp scale limits to avoid too small or huge
           this.scale.x = Math.min(Math.max(this.scale.x, 0.2), 3);
           this.scale.y = Math.min(Math.max(this.scale.y, 0.2), 3);
           this.scale.z = Math.min(Math.max(this.scale.z, 0.2), 3);
-
           this.el.setAttribute('scale', this.scale);
         },
         remove: function () {
-          this.el.removeEventListener('pinchmove', this.handlePinchMove);
+          this.el.sceneEl.removeEventListener('pinchmove', this.handlePinchMove);
         }
       });
 
-      // Optional: tap to toggle sound play/pause on the model
       AFRAME.registerComponent('sound-toggle', {
-        init: function() {
-          this.soundPlaying = true;
+        init: function () {
+          this.soundPlaying = false;
           this.el.addEventListener('click', () => {
             const sound = this.el.components.sound;
             if (!sound) return;
@@ -105,14 +87,6 @@
             }
             this.soundPlaying = !this.soundPlaying;
           });
-        }
-      });
-
-      // Attach sound-toggle to elephant model
-      document.addEventListener('DOMContentLoaded', () => {
-        const elephant = document.querySelector('#elephant');
-        if (elephant) {
-          elephant.setAttribute('sound-toggle', '');
         }
       });
     </script>
