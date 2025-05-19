@@ -63,7 +63,7 @@ AFRAME.scenes[0].addEventListener('loaded', () => {
 function setupAnimalInteractions() {
   // Play sounds once on first tap anywhere (mobile autoplay policy)
   document.body.addEventListener('click', () => {
-    ['elephant', 'tiger', 'rhino'].forEach(id => {
+    ['elephant', 'tiger', 'rhino', 'muskcow'].forEach(id => {
       const entity = document.querySelector('#' + id);
       if (entity) {
         const soundComp = entity.components.sound;
@@ -147,6 +147,36 @@ function setupAnimalInteractions() {
       } else {
         rhino.setAttribute('animation__walk', { enabled: false });
         rhino.setAttribute('animation__idle', {
+          property: 'rotation',
+          to: '0 360 0',
+          dur: 5000,
+          loop: true,
+          easing: 'linear'
+        });
+        animationState = "idle";
+      }
+    });
+  }
+
+  // Musk Cow animation toggle: idle (rotate) <-> walk (move)
+  const muskcow = document.querySelector('#muskcow');
+  if (muskcow) {
+    let animationState = "idle";
+    muskcow.addEventListener('click', (event) => {
+      event.stopPropagation();
+      if (animationState === "idle") {
+        muskcow.setAttribute('animation__walk', {
+          property: 'position',
+          to: '1 0 0',
+          dur: 3000,
+          loop: true,
+          easing: 'linear'
+        });
+        muskcow.setAttribute('animation__idle', { enabled: false });
+        animationState = "walk";
+      } else {
+        muskcow.setAttribute('animation__walk', { enabled: false });
+        muskcow.setAttribute('animation__idle', {
           property: 'rotation',
           to: '0 360 0',
           dur: 5000,

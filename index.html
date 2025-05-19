@@ -27,11 +27,13 @@
         <audio id="elephant-sound" src="assets/sounds/elephant.mp3" preload="auto"></audio>
         <audio id="tiger-sound" src="assets/sounds/tiger.mp3" preload="auto"></audio>
         <audio id="rhino-sound" src="assets/sounds/rhino.mp3" preload="auto"></audio>
+        <audio id="muskcow-sound" src="assets/sounds/muskcow.mp3" preload="auto"></audio>
 
         <!-- Models -->
         <a-asset-item id="elephant-model" src="assets/models/elephant.glb"></a-asset-item>
         <a-asset-item id="tiger-model" src="assets/models/tiger.glb"></a-asset-item>
         <a-asset-item id="rhino-model" src="assets/models/rhino.glb"></a-asset-item>
+        <a-asset-item id="muskcow-model" src="assets/models/muskcow.glb"></a-asset-item>
       </a-assets>
 
       <!-- Elephant Marker -->
@@ -77,6 +79,22 @@
             position="0 0.1 0"
             animation-mixer
             sound="src: #rhino-sound; autoplay: false; loop: true; volume: 0.5"
+            sound-toggle
+          ></a-entity>
+        </a-entity>
+      </a-marker>
+
+      <!-- Musk Cow Marker -->
+      <a-marker type="pattern" url="assets/markers/muskcow_marker.patt">
+        <a-entity id="muskcow-container" rotatable scalable>
+          <a-entity
+            id="muskcow"
+            gltf-model="#muskcow-model"
+            scale="0.8 0.8 0.8"
+            rotation="0 180 0"
+            position="0 0.1 0"
+            animation-mixer
+            sound="src: #muskcow-sound; autoplay: false; loop: true; volume: 0.5"
             sound-toggle
           ></a-entity>
         </a-entity>
