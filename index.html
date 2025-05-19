@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Animals Park AR - Elephant & Tiger Interactive</title>
+    <title>Animals Park AR</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://cdn.rawgit.com/jeromeetienne/ar.js/2.0.1/aframe/build/aframe-ar.min.js"></script>
     <script src="https://unpkg.com/aframe-gesture-detector/dist/aframe-gesture-detector.min.js"></script>
@@ -21,10 +21,12 @@
         <!-- Sounds -->
         <audio id="elephant-sound" src="assets/sounds/elephant.mp3" preload="auto"></audio>
         <audio id="tiger-sound" src="assets/sounds/tiger.mp3" preload="auto"></audio>
+        <audio id="rhino-sound" src="assets/sounds/rhino.mp3" preload="auto"></audio>
 
         <!-- Models -->
         <a-asset-item id="elephant-model" src="assets/models/elephant.glb"></a-asset-item>
         <a-asset-item id="tiger-model" src="assets/models/tiger.glb"></a-asset-item>
+        <a-asset-item id="rhino-model" src="assets/models/rhino.glb"></a-asset-item>
       </a-assets>
 
       <!-- Elephant Marker -->
@@ -54,6 +56,22 @@
             position="0 0.1 0"
             animation-mixer="clip: Walk" 
             sound="src: #tiger-sound; autoplay: false; loop: true; volume: 0.5"
+            sound-toggle
+          ></a-entity>
+        </a-entity>
+      </a-marker>
+
+      <!-- Rhino Marker -->
+      <a-marker type="pattern" url="assets/markers/rhino_marker.patt">
+        <a-entity id="rhino-container" rotatable scalable>
+          <a-entity
+            id="rhino"
+            gltf-model="#rhino-model"
+            scale="0.8 0.8 0.8"
+            rotation="0 180 0"
+            position="0 0.1 0"
+            animation-mixer
+            sound="src: #rhino-sound; autoplay: false; loop: true; volume: 0.5"
             sound-toggle
           ></a-entity>
         </a-entity>

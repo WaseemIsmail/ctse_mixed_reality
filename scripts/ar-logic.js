@@ -131,3 +131,36 @@ document.body.addEventListener('click', () => {
     loop: 'repeat'
   });
 })();
+
+(function () {
+  const rhino = document.querySelector('#rhino');
+  if (!rhino) return;
+
+  let animationState = "idle";
+
+  rhino.addEventListener('click', (event) => {
+    event.stopPropagation();
+
+    if (animationState === "idle") {
+      rhino.setAttribute('animation__walk', {
+        property: 'position',
+        to: '1 0 0',
+        dur: 3000,
+        loop: true,
+        easing: 'linear'
+      });
+      rhino.setAttribute('animation__idle', { enabled: false });
+      animationState = "walk";
+    } else {
+      rhino.setAttribute('animation__walk', { enabled: false });
+      rhino.setAttribute('animation__idle', {
+        property: 'rotation',
+        to: '0 360 0',
+        dur: 5000,
+        loop: true,
+        easing: 'linear'
+      });
+      animationState = "idle";
+    }
+  });
+})();
