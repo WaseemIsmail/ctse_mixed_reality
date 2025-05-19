@@ -1,7 +1,7 @@
 // ROTATABLE: Drag to rotate entity
 AFRAME.registerComponent('rotatable', {
   init: function () {
-    this.rotation = this.el.getAttribute('rotation') || {x: 0, y: 0, z: 0};
+    this.rotation = this.el.getAttribute('rotation') || { x: 0, y: 0, z: 0 };
     this.handleDragMove = this.handleDragMove.bind(this);
     this.el.sceneEl.addEventListener('dragmove', this.handleDragMove);
   },
@@ -21,7 +21,7 @@ AFRAME.registerComponent('rotatable', {
 // SCALABLE: Pinch to scale entity
 AFRAME.registerComponent('scalable', {
   init: function () {
-    this.scale = this.el.getAttribute('scale') || {x: 1, y: 1, z: 1};
+    this.scale = this.el.getAttribute('scale') || { x: 1, y: 1, z: 1 };
     this.handlePinchMove = this.handlePinchMove.bind(this);
     this.el.sceneEl.addEventListener('pinchmove', this.handlePinchMove);
   },
@@ -39,7 +39,7 @@ AFRAME.registerComponent('scalable', {
   }
 });
 
-// SOUND-TOGGLE: Tap elephant to play/pause sound
+// SOUND-TOGGLE: Tap entity to play/pause sound
 AFRAME.registerComponent('sound-toggle', {
   init: function () {
     this.soundPlaying = false;
@@ -56,44 +56,70 @@ AFRAME.registerComponent('sound-toggle', {
   }
 });
 
-// Play sound on first tap anywhere (to comply with mobile autoplay policy)
+// Play sounds once on first tap anywhere (mobile autoplay policy)
 document.body.addEventListener('click', () => {
-  const elephant = document.querySelector('#elephant');
-  if (elephant) {
-    const soundComp = elephant.components.sound;
-    if (soundComp && !soundComp.isPlaying) {
-      soundComp.playSound();
-      elephant.components['sound-toggle'].soundPlaying = true;
+  ['elephant', 'tiger'].forEach(id => {
+    const entity = document.querySelector('#' + id);
+    if (entity) {
+      const soundComp = entity.components.sound;
+      if (soundComp && !soundComp.isPlaying) {
+        soundComp.playSound();
+        entity.components['sound-toggle'].soundPlaying = true;
+      }
     }
-  }
+  });
 }, { once: true });
 
-// Handle tap events to switch between idle and walk animations
-let animationState = "idle";  // Start with the "idle" animation
+// Elephant animation toggle: idle (rotate) <-> walk (move)
+(function () {
+  const elephant = document.querySelector('#elephant');
+  if (!elephant) return;
 
-const elephant = document.querySelector('#elephant');
-elephant.addEventListener('click', () => {
-  if (animationState === "idle") {
-    // Switch to walk animation
-    elephant.setAttribute('animation__walk', {
-      property: 'position',
-      to: '1 0 0',
-      dur: 3000,
-      loop: true,
-      easing: 'linear'
+  let animationState = "idle";
+
+  elephant.addEventListener('click', (event) => {
+    event.stopPropagation();
+
+    if (animationState === "idle") {
+      elephant.setAttribute('animation__walk', {
+        property: 'position',
+        to: '1 0 0',
+        dur: 3000,
+        loop: true,
+        easing: 'linear'
+      });
+      elephant.setAttribute('animation__idle', { enabled: false });
+      animationState = "walk";
+    } else {
+      elephant.setAttribute('animation__walk', { enabled: false });
+      elephant.setAttribute('animation__idle', {
+        property: 'rotation',
+        to: '0 360 0',
+        dur: 5000,
+        loop: true,
+        easing: 'linear'
+      });
+      animationState = "idle";
+    }
+  });
+})();
+
+// Tiger animation toggle: cycle between "Walk" and "WalkFast"
+(function () {
+  const tiger = document.querySelector('#tiger');
+  if (!tiger) return;
+
+  const tigerClips = ['Walk', 'WalkFast'];
+  let currentClipIndex = 0;
+
+  tiger.addEventListener('click', (event) => {
+    event.stopPropagation();
+
+    tiger.setAttribute('animation-mixer', {
+      clip: tigerClips[currentClipIndex],
+      loop: 'repeat'
     });
-    elephant.setAttribute('animation__idle', { enabled: false });
-    animationState = "walk";
-  } else {
-    // Switch to idle animation
-    elephant.setAttribute('animation__walk', { enabled: false });
-    elephant.setAttribute('animation__idle', {
-      property: 'rotation',
-      to: '0 360 0',
-      dur: 5000,
-      loop: true,
-      easing: 'linear'
-    });
-    animationState = "idle";
-  }
-});
+
+    currentClipIndex = (currentClipIndex + 1) % tigerClips.length;
+  });
+})();

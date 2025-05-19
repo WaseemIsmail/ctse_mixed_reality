@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Animals Park AR</title>
+    <title>Animals Park AR - Elephant & Tiger Interactive</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://cdn.rawgit.com/jeromeetienne/ar.js/2.0.1/aframe/build/aframe-ar.min.js"></script>
     <script src="https://unpkg.com/aframe-gesture-detector/dist/aframe-gesture-detector.min.js"></script>
@@ -18,15 +18,21 @@
       gesture-detector
     >
       <a-assets>
+        <!-- Sounds -->
         <audio id="elephant-sound" src="assets/sounds/elephant.mp3" preload="auto"></audio>
+        <audio id="tiger-sound" src="assets/sounds/tiger.mp3" preload="auto"></audio>
+
+        <!-- Models -->
+        <a-asset-item id="elephant-model" src="assets/models/elephant.glb"></a-asset-item>
+        <a-asset-item id="tiger-model" src="assets/models/tiger.glb"></a-asset-item>
       </a-assets>
 
-      <!-- Marker for Elephant -->
+      <!-- Elephant Marker -->
       <a-marker type="pattern" url="assets/markers/elephant_marker.patt">
         <a-entity id="elephant-container" rotatable scalable>
           <a-entity
             id="elephant"
-            gltf-model="assets/models/elephant.glb"
+            gltf-model="#elephant-model"
             scale="0.8 0.8 0.8"
             rotation="0 180 0"
             position="0 0.1 0"
@@ -37,11 +43,25 @@
         </a-entity>
       </a-marker>
 
-      <!-- Camera Entity -->
+      <!-- Tiger Marker -->
+      <a-marker type="pattern" url="assets/markers/tiger_marker.patt">
+        <a-entity id="tiger-container" rotatable scalable>
+          <a-entity
+            id="tiger"
+            gltf-model="#tiger-model"
+            scale="0.8 0.8 0.8"
+            rotation="0 180 0"
+            position="0 0.1 0"
+            animation-mixer
+            sound="src: #tiger-sound; autoplay: false; loop: true; volume: 0.5"
+            sound-toggle
+          ></a-entity>
+        </a-entity>
+      </a-marker>
+
       <a-entity camera></a-entity>
     </a-scene>
 
-    <!-- External JavaScript for AR Logic -->
     <script src="scripts/ar-logic.js"></script>
   </body>
 </html>
