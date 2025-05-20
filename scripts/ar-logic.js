@@ -1,4 +1,4 @@
-// ROTATABLE: Drag to rotate entity
+// Register custom components FIRST (before anything else)
 AFRAME.registerComponent('rotatable', {
   init: function () {
     this.rotation = this.el.getAttribute('rotation') || { x: 0, y: 0, z: 0 };
@@ -18,7 +18,6 @@ AFRAME.registerComponent('rotatable', {
   }
 });
 
-// SCALABLE: Pinch to scale entity
 AFRAME.registerComponent('scalable', {
   init: function () {
     this.scale = this.el.getAttribute('scale') || { x: 1, y: 1, z: 1 };
@@ -39,7 +38,6 @@ AFRAME.registerComponent('scalable', {
   }
 });
 
-// SOUND-TOGGLE: Tap entity to play/pause sound
 AFRAME.registerComponent('sound-toggle', {
   init: function () {
     this.soundPlaying = false;
@@ -56,135 +54,132 @@ AFRAME.registerComponent('sound-toggle', {
   }
 });
 
-AFRAME.scenes[0].addEventListener('loaded', () => {
-  setupAnimalInteractions();
-});
-
-function setupAnimalInteractions() {
-  // Play sounds once on first tap anywhere (mobile autoplay policy)
-  document.body.addEventListener('click', () => {
-    ['elephant', 'tiger', 'rhino', 'muskcow'].forEach(id => {
-      const entity = document.querySelector('#' + id);
-      if (entity) {
-        const soundComp = entity.components.sound;
-        if (soundComp && !soundComp.isPlaying) {
-          soundComp.playSound();
-          entity.components['sound-toggle'].soundPlaying = true;
+// Ensure all the below runs AFTER scene is loaded
+window.addEventListener('DOMContentLoaded', () => {
+  // Wait until the scene and all assets are loaded!
+  document.querySelector('a-scene').addEventListener('loaded', () => {
+    // --- Sound: Play sound on first tap (mobile requirement) ---
+    document.body.addEventListener('click', () => {
+      ['elephant', 'tiger', 'rhino', 'muskcow'].forEach(id => {
+        const entity = document.querySelector('#' + id);
+        if (entity && entity.components.sound && !entity.components.sound.isPlaying) {
+          entity.components.sound.playSound();
+          if (entity.components['sound-toggle']) entity.components['sound-toggle'].soundPlaying = true;
         }
-      }
-    });
-  }, { once: true });
+      });
+    }, { once: true });
 
-  // Elephant animation toggle: idle (rotate) <-> walk (move)
-  const elephant = document.querySelector('#elephant');
-  if (elephant) {
-    let animationState = "idle";
-    elephant.addEventListener('click', (event) => {
-      event.stopPropagation();
-      if (animationState === "idle") {
-        elephant.setAttribute('animation__walk', {
-          property: 'position',
-          to: '1 0 0',
-          dur: 3000,
-          loop: true,
-          easing: 'linear'
-        });
-        elephant.setAttribute('animation__idle', { enabled: false });
-        animationState = "walk";
-      } else {
-        elephant.setAttribute('animation__walk', { enabled: false });
-        elephant.setAttribute('animation__idle', {
-          property: 'rotation',
-          to: '0 360 0',
-          dur: 5000,
-          loop: true,
-          easing: 'linear'
-        });
-        animationState = "idle";
-      }
-    });
-  }
+    // --- Elephant Animation: idle/walk toggle ---
+    const elephant = document.querySelector('#elephant');
+    if (elephant) {
+      let animationState = "idle";
+      elephant.addEventListener('click', (event) => {
+        event.stopPropagation();
+        if (animationState === "idle") {
+          elephant.setAttribute('animation__walk', {
+            property: 'position',
+            to: '1 0 0',
+            dur: 3000,
+            loop: true,
+            easing: 'linear'
+          });
+          elephant.setAttribute('animation__idle', { enabled: false });
+          animationState = "walk";
+        } else {
+          elephant.setAttribute('animation__walk', { enabled: false });
+          elephant.setAttribute('animation__idle', {
+            property: 'rotation',
+            to: '0 360 0',
+            dur: 5000,
+            loop: true,
+            easing: 'linear'
+          });
+          animationState = "idle";
+        }
+      });
+    }
 
-  // Tiger animation toggle: cycle between "Standing" and "Sleeping"
-  const tiger = document.querySelector('#tiger');
-  if (tiger) {
-    const tigerClips = ['Standing', 'Sleeping'];
-    let currentClipIndex = 0;
-    tiger.addEventListener('click', (event) => {
-      event.stopPropagation();
-      tiger.setAttribute('animation-mixer', { clip: null });  // Disable all animations first
-      setTimeout(() => {
-        tiger.setAttribute('animation-mixer', {
-          clip: tigerClips[currentClipIndex],
-          loop: 'repeat'
-        });
-      }, 50);
-      currentClipIndex = (currentClipIndex + 1) % tigerClips.length;
-    });
-    // Start with "Standing"
-    tiger.setAttribute('animation-mixer', {
-      clip: tigerClips[0],
-      loop: 'repeat'
-    });
-  }
+    // --- Tiger Animation: Standing/Sleeping toggle ---
+    const tiger = document.querySelector('#tiger');
+    if (tiger) {
+      const tigerClips = ['Standing', 'Sleeping'];
+      let currentClipIndex = 0;
+      tiger.addEventListener('click', (event) => {
+        event.stopPropagation();
+        tiger.setAttribute('animation-mixer', { clip: null });
+        setTimeout(() => {
+          tiger.setAttribute('animation-mixer', {
+            clip: tigerClips[currentClipIndex],
+            loop: 'repeat'
+          });
+        }, 50);
+        currentClipIndex = (currentClipIndex + 1) % tigerClips.length;
+      });
+      // Start with "Standing"
+      tiger.setAttribute('animation-mixer', {
+        clip: tigerClips[0],
+        loop: 'repeat'
+      });
+    }
 
-  // Rhino animation toggle: idle (rotate) <-> walk (move)
-  const rhino = document.querySelector('#rhino');
-  if (rhino) {
-    let animationState = "idle";
-    rhino.addEventListener('click', (event) => {
-      event.stopPropagation();
-      if (animationState === "idle") {
-        rhino.setAttribute('animation__walk', {
-          property: 'position',
-          to: '1 0 0',
-          dur: 3000,
-          loop: true,
-          easing: 'linear'
-        });
-        rhino.setAttribute('animation__idle', { enabled: false });
-        animationState = "walk";
-      } else {
-        rhino.setAttribute('animation__walk', { enabled: false });
-        rhino.setAttribute('animation__idle', {
-          property: 'rotation',
-          to: '0 360 0',
-          dur: 5000,
-          loop: true,
-          easing: 'linear'
-        });
-        animationState = "idle";
-      }
-    });
-  }
+    // --- Rhino Animation ---
+    const rhino = document.querySelector('#rhino');
+    if (rhino) {
+      let animationState = "idle";
+      rhino.addEventListener('click', (event) => {
+        event.stopPropagation();
+        if (animationState === "idle") {
+          rhino.setAttribute('animation__walk', {
+            property: 'position',
+            to: '1 0 0',
+            dur: 3000,
+            loop: true,
+            easing: 'linear'
+          });
+          rhino.setAttribute('animation__idle', { enabled: false });
+          animationState = "walk";
+        } else {
+          rhino.setAttribute('animation__walk', { enabled: false });
+          rhino.setAttribute('animation__idle', {
+            property: 'rotation',
+            to: '0 360 0',
+            dur: 5000,
+            loop: true,
+            easing: 'linear'
+          });
+          animationState = "idle";
+        }
+      });
+    }
 
-  // Musk Cow animation toggle: idle (rotate) <-> walk (move)
-  const muskcow = document.querySelector('#muskcow');
-  if (muskcow) {
-    let animationState = "idle";
-    muskcow.addEventListener('click', (event) => {
-      event.stopPropagation();
-      if (animationState === "idle") {
-        muskcow.setAttribute('animation__walk', {
-          property: 'position',
-          to: '1 0 0',
-          dur: 3000,
-          loop: true,
-          easing: 'linear'
-        });
-        muskcow.setAttribute('animation__idle', { enabled: false });
-        animationState = "walk";
-      } else {
-        muskcow.setAttribute('animation__walk', { enabled: false });
-        muskcow.setAttribute('animation__idle', {
-          property: 'rotation',
-          to: '0 360 0',
-          dur: 5000,
-          loop: true,
-          easing: 'linear'
-        });
-        animationState = "idle";
-      }
-    });
-  }
-}
+    // --- Musk Cow Animation ---
+    const muskcow = document.querySelector('#muskcow');
+    if (muskcow) {
+      let animationState = "idle";
+      muskcow.addEventListener('click', (event) => {
+        event.stopPropagation();
+        if (animationState === "idle") {
+          muskcow.setAttribute('animation__walk', {
+            property: 'position',
+            to: '1 0 0',
+            dur: 3000,
+            loop: true,
+            easing: 'linear'
+          });
+          muskcow.setAttribute('animation__idle', { enabled: false });
+          animationState = "walk";
+        } else {
+          muskcow.setAttribute('animation__walk', { enabled: false });
+          muskcow.setAttribute('animation__idle', {
+            property: 'rotation',
+            to: '0 360 0',
+            dur: 5000,
+            loop: true,
+            easing: 'linear'
+          });
+          animationState = "idle";
+        }
+      });
+    }
+  });
+});
