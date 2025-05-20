@@ -21,7 +21,7 @@
       arjs="sourceType: webcam; debugUIEnabled: false;"
       device-orientation-permission-ui="enabled: true"
       gesture-detector
-      environment="preset: jungle; groundYScale: 0; skyType: none;"
+      environment="preset: none"  <!-- Disabled preset to avoid camera feed obstruction -->
       renderer="logarithmicDepthBuffer: true"
     >
       <a-assets>
@@ -36,6 +36,9 @@
         <a-asset-item id="tiger-model" src="assets/models/tiger.glb"></a-asset-item>
         <a-asset-item id="rhino-model" src="assets/models/rhino.glb"></a-asset-item>
         <a-asset-item id="muskcow-model" src="assets/models/muskcow.glb"></a-asset-item>
+
+        <!-- Grass Texture -->
+        <img id="grass-texture" src="assets/textures/grass.jpg" />
       </a-assets>
 
       <!-- Lights -->
@@ -45,6 +48,19 @@
       <!-- Elephant Marker -->
       <a-marker type="pattern" url="assets/markers/elephant_marker.patt">
         <a-entity id="elephant-container" rotatable scalable>
+
+          <!-- Grass Ground -->
+          <a-plane
+            src="#grass-texture"
+            rotation="-90 0 0"
+            width="4"
+            height="4"
+            repeat="4 4"
+            material="side: double"
+            position="0 0 0"
+          ></a-plane>
+
+          <!-- Elephant Model -->
           <a-entity
             id="elephant"
             gltf-model="#elephant-model"
@@ -61,6 +77,19 @@
       <!-- Tiger Marker -->
       <a-marker type="pattern" url="assets/markers/tiger_marker.patt">
         <a-entity id="tiger-container" rotatable scalable>
+
+          <!-- Grass Ground -->
+          <a-plane
+            src="#grass-texture"
+            rotation="-90 0 0"
+            width="4"
+            height="4"
+            repeat="4 4"
+            material="side: double"
+            position="0 0 0"
+          ></a-plane>
+
+          <!-- Tiger Model -->
           <a-entity
             id="tiger"
             gltf-model="#tiger-model"
@@ -77,6 +106,19 @@
       <!-- Rhino Marker -->
       <a-marker type="pattern" url="assets/markers/rhino_marker.patt">
         <a-entity id="rhino-container" rotatable scalable>
+
+          <!-- Grass Ground -->
+          <a-plane
+            src="#grass-texture"
+            rotation="-90 0 0"
+            width="4"
+            height="4"
+            repeat="4 4"
+            material="side: double"
+            position="0 0 0"
+          ></a-plane>
+
+          <!-- Rhino Model -->
           <a-entity
             id="rhino"
             gltf-model="#rhino-model"
@@ -93,6 +135,19 @@
       <!-- Musk Cow Marker -->
       <a-marker type="pattern" url="assets/markers/muskcow_marker.patt">
         <a-entity id="muskcow-container" rotatable scalable>
+
+          <!-- Grass Ground -->
+          <a-plane
+            src="#grass-texture"
+            rotation="-90 0 0"
+            width="4"
+            height="4"
+            repeat="4 4"
+            material="side: double"
+            position="0 0 0"
+          ></a-plane>
+
+          <!-- Musk Cow Model -->
           <a-entity
             id="muskcow"
             gltf-model="#muskcow-model"
