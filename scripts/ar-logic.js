@@ -3,7 +3,7 @@ AFRAME.registerComponent('rotatable', {
   init: function () {
     this.rotation = this.el.getAttribute('rotation') || { x: 0, y: 0, z: 0 };
     this.handleDragMove = this.handleDragMove.bind(this);
-    this.el.sceneEl.addEventListener('dragmove', this.handleDragMove);
+    this.el.addEventListener('dragmove', this.handleDragMove);  // listen on this.el
     console.log(`rotatable registered on ${this.el.id || this.el.tagName}`);
   },
   handleDragMove: function (event) {
@@ -16,7 +16,7 @@ AFRAME.registerComponent('rotatable', {
     this.el.setAttribute('rotation', this.rotation);
   },
   remove: function () {
-    this.el.sceneEl.removeEventListener('dragmove', this.handleDragMove);
+    this.el.removeEventListener('dragmove', this.handleDragMove);
   }
 });
 
@@ -25,7 +25,7 @@ AFRAME.registerComponent('scalable', {
   init: function () {
     this.scale = this.el.getAttribute('scale') || { x: 1, y: 1, z: 1 };
     this.handlePinchMove = this.handlePinchMove.bind(this);
-    this.el.sceneEl.addEventListener('pinchmove', this.handlePinchMove);
+    this.el.addEventListener('pinchmove', this.handlePinchMove);  // listen on this.el
     console.log(`scalable registered on ${this.el.id || this.el.tagName}`);
   },
   handlePinchMove: function (event) {
@@ -39,7 +39,7 @@ AFRAME.registerComponent('scalable', {
     this.el.setAttribute('scale', this.scale);
   },
   remove: function () {
-    this.el.sceneEl.removeEventListener('pinchmove', this.handlePinchMove);
+    this.el.removeEventListener('pinchmove', this.handlePinchMove);
   }
 });
 
@@ -68,12 +68,11 @@ AFRAME.registerComponent('sound-toggle', {
   }
 });
 
-// Ensure all the below runs AFTER scene is loaded
 window.addEventListener('DOMContentLoaded', () => {
   document.querySelector('a-scene').addEventListener('loaded', () => {
     console.log('🟢 A-Frame scene loaded!');
 
-    // Play sounds once on first tap (mobile requirement)
+    // Play sounds once on first tap anywhere (mobile autoplay policy)
     document.body.addEventListener('click', () => {
       ['elephant', 'tiger', 'rhino', 'muskcow'].forEach(id => {
         const entity = document.querySelector('#' + id);

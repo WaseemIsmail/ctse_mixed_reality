@@ -45,10 +45,12 @@
       <a-light type="ambient" color="#666"></a-light>
       <a-light type="directional" intensity="0.8" position="1 1 0"></a-light>
 
+      <!-- Test Cube to Check Rotation and Scaling -->
+      <a-box position="0 1 -3" rotation="0 45 0" scale="1 1 1" color="#4CC3D9" rotatable scalable></a-box>
+
       <!-- Elephant Marker -->
       <a-marker type="pattern" url="assets/markers/elephant_marker.patt">
         <a-entity id="elephant-container" rotatable scalable gesture-detector>
-
           <!-- Grass Ground -->
           <a-plane
             src="#grass-texture"
@@ -59,7 +61,6 @@
             material="side: double"
             position="0 0 0"
           ></a-plane>
-
           <!-- Elephant Model -->
           <a-entity
             id="elephant"
@@ -74,96 +75,7 @@
         </a-entity>
       </a-marker>
 
-      <!-- Tiger Marker -->
-      <a-marker type="pattern" url="assets/markers/tiger_marker.patt">
-        <a-entity id="tiger-container" rotatable scalable gesture-detector>
-
-          <!-- Grass Ground -->
-          <a-plane
-            src="#grass-texture"
-            rotation="-90 0 0"
-            width="4"
-            height="4"
-            repeat="4 4"
-            material="side: double"
-            position="0 0 0"
-          ></a-plane>
-
-          <!-- Tiger Model -->
-          <a-entity
-            id="tiger"
-            gltf-model="#tiger-model"
-            scale="0.8 0.8 0.8"
-            rotation="0 180 0"
-            position="0 0.1 0"
-            animation-mixer="clip: Standing"
-            sound="src: #tiger-sound; autoplay: false; loop: true; volume: 0.5"
-            sound-toggle
-          ></a-entity>
-        </a-entity>
-      </a-marker>
-
-      <!-- Rhino Marker -->
-      <a-marker type="pattern" url="assets/markers/rhino_marker.patt">
-        <a-entity id="rhino-container" rotatable scalable gesture-detector>
-
-          <!-- Grass Ground -->
-          <a-plane
-            src="#grass-texture"
-            rotation="-90 0 0"
-            width="4"
-            height="4"
-            repeat="4 4"
-            material="side: double"
-            position="0 0 0"
-          ></a-plane>
-
-          <!-- Rhino Model -->
-          <a-entity
-            id="rhino"
-            gltf-model="#rhino-model"
-            scale="0.8 0.8 0.8"
-            rotation="0 180 0"
-            position="0 0.1 0"
-            animation-mixer
-            sound="src: #rhino-sound; autoplay: false; loop: true; volume: 0.5"
-            sound-toggle
-          ></a-entity>
-        </a-entity>
-      </a-marker>
-
-      <!-- Musk Cow Marker -->
-      <a-marker type="pattern" url="assets/markers/muskcow_marker.patt">
-        <a-entity id="muskcow-container" rotatable scalable gesture-detector>
-
-          <!-- Grass Ground -->
-          <a-plane
-            src="#grass-texture"
-            rotation="-90 0 0"
-            width="4"
-            height="4"
-            repeat="4 4"
-            material="side: double"
-            position="0 0 0"
-          ></a-plane>
-
-          <!-- Musk Cow Model -->
-          <a-entity
-            id="muskcow"
-            gltf-model="#muskcow-model"
-            scale="0.8 0.8 0.8"
-            rotation="0 180 0"
-            position="0 0.1 0"
-            animation-mixer
-            sound="src: #muskcow-sound; autoplay: false; loop: true; volume: 0.5"
-            sound-toggle
-          ></a-entity>
-        </a-entity>
-      </a-marker>
-
       <a-entity camera></a-entity>
     </a-scene>
-
-    <script src="scripts/ar-logic.js"></script>
   </body>
 </html>
