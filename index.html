@@ -91,7 +91,7 @@
             scale="0.8 0.8 0.8"
             rotation="0 180 0"
             position="0 0.1 0"
-            animation-mixer="clip: Standing"
+            animation-mixer
             sound="src: #tiger-sound; autoplay: false; loop: true; volume: 0.5"
             sound-toggle
           ></a-entity>
@@ -156,6 +156,15 @@
     </a-scene>
 
     <script>
+      // Get animation clip names from animation-mixer component
+      function getAnimationClips(el) {
+        const mixerComp = el.components['animation-mixer'];
+        if (!mixerComp || !mixerComp.mixer) return [];
+        // Extract unique clip names from mixer actions
+        const clips = mixerComp.mixer._actions.map(action => action._clip.name);
+        return [...new Set(clips)];
+      }
+
       AFRAME.registerComponent('gesture-rotate-scale', {
         init: function () {
           this.isDragging = false;
@@ -271,6 +280,34 @@
               }
             });
           }, { once: true });
+
+          // Animation clip toggling for each model
+          ['elephant', 'tiger', 'rhino', 'muskcow'].forEach(id => {
+            const el = document.querySelector('#' + id);
+            if (!el) return;
+
+            let currentClipIndex = 0;
+            let clips = [];
+
+            el.addEventListener('model-loaded', () => {
+              clips = getAnimationClips(el);
+              console.log(`Animations for ${id}:`, clips);
+              if (clips.length > 0) {
+                el.setAttribute('animation-mixer', { clip: clips[0], loop: 'repeat' });
+              }
+            });
+
+            el.addEventListener('click', (event) => {
+              event.stopPropagation();
+              if (clips.length === 0) {
+                console.log(`${id} has no animation clips.`);
+                return;
+              }
+              currentClipIndex = (currentClipIndex + 1) % clips.length;
+              el.setAttribute('animation-mixer', { clip: clips[currentClipIndex], loop: 'repeat' });
+              console.log(`${id} switched to animation clip: ${clips[currentClipIndex]}`);
+            });
+          });
         });
       });
     </script>
