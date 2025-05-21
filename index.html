@@ -6,7 +6,8 @@
     <script src="https://cdn.rawgit.com/jeromeetienne/ar.js/2.0.1/aframe/build/aframe-ar.min.js"></script>
     <script src="https://unpkg.com/aframe-gesture-detector/dist/aframe-gesture-detector.min.js"></script>
     <style>
-      body, html {
+      body,
+      html {
         margin: 0;
         overflow: hidden;
         width: 100%;
@@ -25,16 +26,41 @@
     >
       <a-assets>
         <!-- Sounds -->
-        <audio id="elephant-sound" src="assets/sounds/elephant.mp3" preload="auto"></audio>
-        <audio id="tiger-sound" src="assets/sounds/tiger.mp3" preload="auto"></audio>
-        <audio id="rhino-sound" src="assets/sounds/rhino.mp3" preload="auto"></audio>
-        <audio id="muskcow-sound" src="assets/sounds/muskcow.mp3" preload="auto"></audio>
+        <audio
+          id="elephant-sound"
+          src="assets/sounds/elephant.mp3"
+          preload="auto"
+        ></audio>
+        <audio
+          id="tiger-sound"
+          src="assets/sounds/tiger.mp3"
+          preload="auto"
+        ></audio>
+        <audio
+          id="rhino-sound"
+          src="assets/sounds/rhino.mp3"
+          preload="auto"
+        ></audio>
+        <audio
+          id="cow-sound"
+          src="assets/sounds/cow.mp3"
+          preload="auto"
+        ></audio>
 
         <!-- Models -->
-        <a-asset-item id="elephant-model" src="assets/models/elephant.glb"></a-asset-item>
-        <a-asset-item id="tiger-model" src="assets/models/tiger.glb"></a-asset-item>
-        <a-asset-item id="rhino-model" src="assets/models/rhino.glb"></a-asset-item>
-        <a-asset-item id="muskcow-model" src="assets/models/muskcow.glb"></a-asset-item>
+        <a-asset-item
+          id="elephant-model"
+          src="assets/models/elephant.glb"
+        ></a-asset-item>
+        <a-asset-item
+          id="tiger-model"
+          src="assets/models/tiger.glb"
+        ></a-asset-item>
+        <a-asset-item
+          id="rhino-model"
+          src="assets/models/rhino.glb"
+        ></a-asset-item>
+        <a-asset-item id="cow-model" src="assets/models/cow.glb"></a-asset-item>
 
         <!-- Grass Texture -->
         <img id="grass-texture" src="assets/textures/grass.jpg" />
@@ -47,7 +73,6 @@
       <!-- Elephant Marker -->
       <a-marker type="pattern" url="assets/markers/elephant_marker.patt">
         <a-entity id="elephant-container" gesture-rotate-scale>
-
           <a-plane
             src="#grass-texture"
             rotation="-90 0 0"
@@ -67,7 +92,6 @@
             animation-mixer
             sound="src: #elephant-sound; autoplay: false; loop: true; volume: 0.5"
             sound-toggle
-
             animation__rotate="property: rotation; to: 0 540 0; dur: 2000; easing: linear; startEvents: startRotate"
             animation__color="property: material.color; from: #FFF; to: #FF0000; dur: 500; dir: alternate; loop: 2; startEvents: startColor"
           >
@@ -78,7 +102,6 @@
       <!-- Tiger Marker -->
       <a-marker type="pattern" url="assets/markers/tiger_marker.patt">
         <a-entity id="tiger-container" gesture-rotate-scale>
-
           <a-plane
             src="#grass-texture"
             rotation="-90 0 0"
@@ -98,7 +121,6 @@
             animation-mixer
             sound="src: #tiger-sound; autoplay: false; loop: true; volume: 0.5"
             sound-toggle
-
             animation__rotate="property: rotation; to: 0 360 0; dur: 3000; easing: linear; startEvents: startRotate"
             animation__scale="property: scale; from: 0.8 0.8 0.8; to: 1 1 1; dur: 700; dir: alternate; loop: 2; startEvents: startScale"
           >
@@ -109,7 +131,6 @@
       <!-- Rhino Marker -->
       <a-marker type="pattern" url="assets/markers/rhino_marker.patt">
         <a-entity id="rhino-container" gesture-rotate-scale>
-
           <a-plane
             src="#grass-texture"
             rotation="-90 0 0"
@@ -129,7 +150,6 @@
             animation-mixer
             sound="src: #rhino-sound; autoplay: false; loop: true; volume: 0.5"
             sound-toggle
-
             animation__rotate="property: rotation; to: 0 360 0; dur: 2000; easing: linear; startEvents: startRotate"
             animation__scale="property: scale; from: 0.8 0.8 0.8; to: 1 1 1; dur: 700; dir: alternate; loop: 2; startEvents: startScale"
           >
@@ -138,9 +158,8 @@
       </a-marker>
 
       <!-- Musk Cow Marker -->
-      <a-marker type="pattern" url="assets/markers/muskcow_marker.patt">
-        <a-entity id="muskcow-container" gesture-rotate-scale>
-
+      <a-marker type="pattern" url="assets/markers/cow_marker.patt">
+        <a-entity id="cow-container" gesture-rotate-scale>
           <a-plane
             src="#grass-texture"
             rotation="-90 0 0"
@@ -152,15 +171,14 @@
           ></a-plane>
 
           <a-entity
-            id="muskcow"
-            gltf-model="#muskcow-model"
+            id="cow"
+            gltf-model="#cow-model"
             scale="0.8 0.8 0.8"
             rotation="0 180 0"
             position="0 0.1 0"
             animation-mixer
-            sound="src: #muskcow-sound; autoplay: false; loop: true; volume: 0.5"
+            sound="src: #cow-sound; autoplay: false; loop: true; volume: 0.5"
             sound-toggle
-
             animation__rotate="property: rotation; to: 0 360 0; dur: 2500; easing: linear; startEvents: startRotate"
             animation__scale="property: scale; from: 0.8 0.8 0.8; to: 1 1 1; dur: 700; dir: alternate; loop: 2; startEvents: startScale"
           >
@@ -173,30 +191,30 @@
 
     <script>
       // Double-tap detection and trigger animations
-      ['elephant', 'tiger', 'rhino', 'muskcow'].forEach(id => {
-        const el = document.querySelector('#' + id);
+      ["elephant", "tiger", "rhino", "cow"].forEach((id) => {
+        const el = document.querySelector("#" + id);
         if (!el) return;
 
         let lastTap = 0;
-        el.addEventListener('click', (evt) => {
+        el.addEventListener("click", (evt) => {
           const currentTime = new Date().getTime();
           const tapLength = currentTime - lastTap;
           if (tapLength < 400 && tapLength > 0) {
             evt.preventDefault();
             // Trigger property animations by emitting events
-            el.emit('startRotate');
-            el.emit('startScale');
-            el.emit('startColor');
+            el.emit("startRotate");
+            el.emit("startScale");
+            el.emit("startColor");
           }
           lastTap = currentTime;
         });
       });
 
       // Sound toggle component (from your original code)
-      AFRAME.registerComponent('sound-toggle', {
+      AFRAME.registerComponent("sound-toggle", {
         init: function () {
           this.soundPlaying = false;
-          this.el.addEventListener('click', (event) => {
+          this.el.addEventListener("click", (event) => {
             event.stopPropagation();
             const sound = this.el.components.sound;
             if (!sound) {
@@ -212,12 +230,14 @@
             }
             this.soundPlaying = !this.soundPlaying;
           });
-          console.log(`sound-toggle registered on ${this.el.id || this.el.tagName}`);
-        }
+          console.log(
+            `sound-toggle registered on ${this.el.id || this.el.tagName}`
+          );
+        },
       });
 
       // Gesture rotate and scale component (from your original code)
-      AFRAME.registerComponent('gesture-rotate-scale', {
+      AFRAME.registerComponent("gesture-rotate-scale", {
         init: function () {
           this.isDragging = false;
           this.lastX = 0;
@@ -230,16 +250,16 @@
           const el = this.el;
 
           // Mouse events for rotation
-          el.sceneEl.canvas.addEventListener('mousedown', (e) => {
+          el.sceneEl.canvas.addEventListener("mousedown", (e) => {
             this.isDragging = true;
             this.lastX = e.clientX;
             this.lastY = e.clientY;
           });
-          window.addEventListener('mouseup', () => {
+          window.addEventListener("mouseup", () => {
             this.isDragging = false;
             this.isScaling = false;
           });
-          el.sceneEl.canvas.addEventListener('mousemove', (e) => {
+          el.sceneEl.canvas.addEventListener("mousemove", (e) => {
             if (this.isDragging && !this.isScaling) {
               let deltaX = e.clientX - this.lastX;
               let deltaY = e.clientY - this.lastY;
@@ -251,7 +271,7 @@
           });
 
           // Touch events for rotation and scaling
-          el.sceneEl.canvas.addEventListener('touchstart', (e) => {
+          el.sceneEl.canvas.addEventListener("touchstart", (e) => {
             if (e.touches.length === 1) {
               this.isDragging = true;
               this.lastX = e.touches[0].clientX;
@@ -259,11 +279,14 @@
             } else if (e.touches.length === 2) {
               this.isDragging = false;
               this.isScaling = true;
-              this.initialDistance = this.getDistance(e.touches[0], e.touches[1]);
+              this.initialDistance = this.getDistance(
+                e.touches[0],
+                e.touches[1]
+              );
               this.initialScale = this.el.object3D.scale.clone();
             }
           });
-          el.sceneEl.canvas.addEventListener('touchmove', (e) => {
+          el.sceneEl.canvas.addEventListener("touchmove", (e) => {
             if (this.isDragging && e.touches.length === 1) {
               let deltaX = e.touches[0].clientX - this.lastX;
               let deltaY = e.touches[0].clientY - this.lastY;
@@ -272,10 +295,15 @@
               this.lastX = e.touches[0].clientX;
               this.lastY = e.touches[0].clientY;
             } else if (this.isScaling && e.touches.length === 2) {
-              let currentDistance = this.getDistance(e.touches[0], e.touches[1]);
+              let currentDistance = this.getDistance(
+                e.touches[0],
+                e.touches[1]
+              );
               let scaleFactor = currentDistance / this.initialDistance;
 
-              let newScale = this.initialScale.clone().multiplyScalar(scaleFactor);
+              let newScale = this.initialScale
+                .clone()
+                .multiplyScalar(scaleFactor);
               newScale.x = THREE.MathUtils.clamp(newScale.x, 0.2, 3);
               newScale.y = THREE.MathUtils.clamp(newScale.y, 0.2, 3);
               newScale.z = THREE.MathUtils.clamp(newScale.z, 0.2, 3);
@@ -283,7 +311,7 @@
               el.object3D.scale.copy(newScale);
             }
           });
-          el.sceneEl.canvas.addEventListener('touchend', (e) => {
+          el.sceneEl.canvas.addEventListener("touchend", (e) => {
             if (e.touches.length < 2) this.isScaling = false;
             if (e.touches.length === 0) this.isDragging = false;
           });
@@ -292,14 +320,14 @@
           let dx = touch1.clientX - touch2.clientX;
           let dy = touch1.clientY - touch2.clientY;
           return Math.sqrt(dx * dx + dy * dy);
-        }
+        },
       });
 
       // Helper: get animation clips from animation-mixer component
       function getAnimationClips(el) {
-        const mixerComp = el.components['animation-mixer'];
+        const mixerComp = el.components["animation-mixer"];
         if (!mixerComp || !mixerComp.mixer) return [];
-        return mixerComp.mixer._actions.map(action => action._clip.name);
+        return mixerComp.mixer._actions.map((action) => action._clip.name);
       }
     </script>
   </body>
