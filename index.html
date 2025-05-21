@@ -20,7 +20,6 @@
       vr-mode-ui="enabled: false"
       arjs="sourceType: webcam; debugUIEnabled: false;"
       device-orientation-permission-ui="enabled: true"
-      gesture-detector
       environment="preset: none"
       renderer="logarithmicDepthBuffer: true"
     >
@@ -157,16 +156,19 @@
     </a-scene>
 
     <script>
-      // Custom component to handle drag rotate and pinch scale on marker container
       AFRAME.registerComponent('gesture-rotate-scale', {
         init: function () {
           this.isDragging = false;
           this.lastX = 0;
           this.lastY = 0;
 
+          this.isScaling = false;
+          this.initialDistance = 0;
+          this.initialScale = this.el.object3D.scale.clone();
+
           const el = this.el;
 
-          // Mouse Events
+          // Mouse events for rotation
           el.sceneEl.canvas.addEventListener('mousedown', (e) => {
             this.isDragging = true;
             this.lastX = e.clientX;
@@ -174,39 +176,64 @@
           });
           window.addEventListener('mouseup', () => {
             this.isDragging = false;
+            this.isScaling = false;
           });
           el.sceneEl.canvas.addEventListener('mousemove', (e) => {
-            if (!this.isDragging) return;
-            let deltaX = e.clientX - this.lastX;
-            let deltaY = e.clientY - this.lastY;
-            el.object3D.rotation.y += deltaX * 0.01;
-            el.object3D.rotation.x += deltaY * 0.01;
-            this.lastX = e.clientX;
-            this.lastY = e.clientY;
+            if (this.isDragging && !this.isScaling) {
+              let deltaX = e.clientX - this.lastX;
+              let deltaY = e.clientY - this.lastY;
+              el.object3D.rotation.y += deltaX * 0.01;
+              el.object3D.rotation.x += deltaY * 0.01;
+              this.lastX = e.clientX;
+              this.lastY = e.clientY;
+            }
           });
 
-          // Touch Events
+          // Touch events for rotation and scaling
           el.sceneEl.canvas.addEventListener('touchstart', (e) => {
-            this.isDragging = true;
-            this.lastX = e.touches[0].clientX;
-            this.lastY = e.touches[0].clientY;
-          });
-          el.sceneEl.canvas.addEventListener('touchend', () => {
-            this.isDragging = false;
+            if (e.touches.length === 1) {
+              this.isDragging = true;
+              this.lastX = e.touches[0].clientX;
+              this.lastY = e.touches[0].clientY;
+            } else if (e.touches.length === 2) {
+              this.isDragging = false;
+              this.isScaling = true;
+              this.initialDistance = this.getDistance(e.touches[0], e.touches[1]);
+              this.initialScale = this.el.object3D.scale.clone();
+            }
           });
           el.sceneEl.canvas.addEventListener('touchmove', (e) => {
-            if (!this.isDragging) return;
-            let deltaX = e.touches[0].clientX - this.lastX;
-            let deltaY = e.touches[0].clientY - this.lastY;
-            el.object3D.rotation.y += deltaX * 0.01;
-            el.object3D.rotation.x += deltaY * 0.01;
-            this.lastX = e.touches[0].clientX;
-            this.lastY = e.touches[0].clientY;
+            if (this.isDragging && e.touches.length === 1) {
+              let deltaX = e.touches[0].clientX - this.lastX;
+              let deltaY = e.touches[0].clientY - this.lastY;
+              el.object3D.rotation.y += deltaX * 0.01;
+              el.object3D.rotation.x += deltaY * 0.01;
+              this.lastX = e.touches[0].clientX;
+              this.lastY = e.touches[0].clientY;
+            } else if (this.isScaling && e.touches.length === 2) {
+              let currentDistance = this.getDistance(e.touches[0], e.touches[1]);
+              let scaleFactor = currentDistance / this.initialDistance;
+
+              let newScale = this.initialScale.clone().multiplyScalar(scaleFactor);
+              newScale.x = THREE.MathUtils.clamp(newScale.x, 0.2, 3);
+              newScale.y = THREE.MathUtils.clamp(newScale.y, 0.2, 3);
+              newScale.z = THREE.MathUtils.clamp(newScale.z, 0.2, 3);
+
+              el.object3D.scale.copy(newScale);
+            }
           });
+          el.sceneEl.canvas.addEventListener('touchend', (e) => {
+            if (e.touches.length < 2) this.isScaling = false;
+            if (e.touches.length === 0) this.isDragging = false;
+          });
+        },
+        getDistance: function (touch1, touch2) {
+          let dx = touch1.clientX - touch2.clientX;
+          let dy = touch1.clientY - touch2.clientY;
+          return Math.sqrt(dx * dx + dy * dy);
         }
       });
 
-      // Sound toggle component
       AFRAME.registerComponent('sound-toggle', {
         init: function () {
           this.soundPlaying = false;
@@ -230,7 +257,6 @@
         }
       });
 
-      // Play sounds on first tap for mobile autoplay policy
       window.addEventListener('DOMContentLoaded', () => {
         document.querySelector('a-scene').addEventListener('loaded', () => {
           document.body.addEventListener('click', () => {
