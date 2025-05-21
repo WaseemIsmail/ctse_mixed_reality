@@ -67,7 +67,11 @@
             animation-mixer
             sound="src: #elephant-sound; autoplay: false; loop: true; volume: 0.5"
             sound-toggle
-          ></a-entity>
+
+            animation__rotate="property: rotation; to: 0 540 0; dur: 2000; easing: linear; startEvents: startRotate"
+            animation__color="property: material.color; from: #FFF; to: #FF0000; dur: 500; dir: alternate; loop: 2; startEvents: startColor"
+          >
+          </a-entity>
         </a-entity>
       </a-marker>
 
@@ -94,7 +98,11 @@
             animation-mixer
             sound="src: #tiger-sound; autoplay: false; loop: true; volume: 0.5"
             sound-toggle
-          ></a-entity>
+
+            animation__rotate="property: rotation; to: 0 360 0; dur: 3000; easing: linear; startEvents: startRotate"
+            animation__scale="property: scale; from: 0.8 0.8 0.8; to: 1 1 1; dur: 700; dir: alternate; loop: 2; startEvents: startScale"
+          >
+          </a-entity>
         </a-entity>
       </a-marker>
 
@@ -121,7 +129,11 @@
             animation-mixer
             sound="src: #rhino-sound; autoplay: false; loop: true; volume: 0.5"
             sound-toggle
-          ></a-entity>
+
+            animation__rotate="property: rotation; to: 0 360 0; dur: 2000; easing: linear; startEvents: startRotate"
+            animation__scale="property: scale; from: 0.8 0.8 0.8; to: 1 1 1; dur: 700; dir: alternate; loop: 2; startEvents: startScale"
+          >
+          </a-entity>
         </a-entity>
       </a-marker>
 
@@ -148,7 +160,11 @@
             animation-mixer
             sound="src: #muskcow-sound; autoplay: false; loop: true; volume: 0.5"
             sound-toggle
-          ></a-entity>
+
+            animation__rotate="property: rotation; to: 0 360 0; dur: 2500; easing: linear; startEvents: startRotate"
+            animation__scale="property: scale; from: 0.8 0.8 0.8; to: 1 1 1; dur: 700; dir: alternate; loop: 2; startEvents: startScale"
+          >
+          </a-entity>
         </a-entity>
       </a-marker>
 
@@ -156,27 +172,51 @@
     </a-scene>
 
     <script>
-      // Helper: get animation clips from animation-mixer
-      function getAnimationClips(el) {
-        const mixerComp = el.components['animation-mixer'];
-        if (!mixerComp || !mixerComp.mixer) return [];
-        return mixerComp.mixer._actions.map(action => action._clip.name);
-      }
+      // Double-tap detection and trigger animations
+      ['elephant', 'tiger', 'rhino', 'muskcow'].forEach(id => {
+        const el = document.querySelector('#' + id);
+        if (!el) return;
 
-      // Double-tap detection helper for any element
-      function setupDoubleTap(el, callback) {
         let lastTap = 0;
-        el.addEventListener('click', (event) => {
+        el.addEventListener('click', (evt) => {
           const currentTime = new Date().getTime();
           const tapLength = currentTime - lastTap;
           if (tapLength < 400 && tapLength > 0) {
-            event.preventDefault();
-            callback(event);
+            evt.preventDefault();
+            // Trigger property animations by emitting events
+            el.emit('startRotate');
+            el.emit('startScale');
+            el.emit('startColor');
           }
           lastTap = currentTime;
         });
-      }
+      });
 
+      // Sound toggle component (from your original code)
+      AFRAME.registerComponent('sound-toggle', {
+        init: function () {
+          this.soundPlaying = false;
+          this.el.addEventListener('click', (event) => {
+            event.stopPropagation();
+            const sound = this.el.components.sound;
+            if (!sound) {
+              console.warn(`No sound component found on ${this.el.id}`);
+              return;
+            }
+            if (this.soundPlaying) {
+              sound.pauseSound();
+              console.log(`Sound paused on ${this.el.id}`);
+            } else {
+              sound.playSound();
+              console.log(`Sound played on ${this.el.id}`);
+            }
+            this.soundPlaying = !this.soundPlaying;
+          });
+          console.log(`sound-toggle registered on ${this.el.id || this.el.tagName}`);
+        }
+      });
+
+      // Gesture rotate and scale component (from your original code)
       AFRAME.registerComponent('gesture-rotate-scale', {
         init: function () {
           this.isDragging = false;
@@ -255,81 +295,12 @@
         }
       });
 
-      AFRAME.registerComponent('sound-toggle', {
-        init: function () {
-          this.soundPlaying = false;
-          this.el.addEventListener('click', (event) => {
-            event.stopPropagation();
-            const sound = this.el.components.sound;
-            if (!sound) {
-              console.warn(`No sound component found on ${this.el.id}`);
-              return;
-            }
-            if (this.soundPlaying) {
-              sound.pauseSound();
-              console.log(`Sound paused on ${this.el.id}`);
-            } else {
-              sound.playSound();
-              console.log(`Sound played on ${this.el.id}`);
-            }
-            this.soundPlaying = !this.soundPlaying;
-          });
-          console.log(`sound-toggle registered on ${this.el.id || this.el.tagName}`);
-        }
-      });
-
-      window.addEventListener('DOMContentLoaded', () => {
-        document.querySelector('a-scene').addEventListener('loaded', () => {
-          document.body.addEventListener('click', () => {
-            ['elephant', 'tiger', 'rhino', 'muskcow'].forEach(id => {
-              const entity = document.querySelector('#' + id);
-              if (entity && entity.components.sound && !entity.components.sound.isPlaying) {
-                entity.components.sound.playSound();
-                if (entity.components['sound-toggle']) {
-                  entity.components['sound-toggle'].soundPlaying = true;
-                }
-                console.log(`Auto-playing sound for ${id}`);
-              }
-            });
-          }, { once: true });
-
-          // Setup double-tap animation toggling
-          ['elephant', 'tiger', 'rhino', 'muskcow'].forEach(id => {
-            const el = document.querySelector('#' + id);
-            if (!el) return;
-
-            let clips = [];
-            let currentClipIndex = 0;
-
-            // Wait for model to load to get clips
-            el.addEventListener('model-loaded', () => {
-              clips = getAnimationClips(el);
-              console.log(`Animations for ${id}:`, clips);
-              if (clips.length > 0) {
-                el.setAttribute('animation-mixer', { clip: clips[0], loop: 'repeat' });
-              }
-            });
-
-            // Setup double-tap to cycle animations
-            let lastTap = 0;
-            el.addEventListener('click', (evt) => {
-              const currentTime = new Date().getTime();
-              const tapLength = currentTime - lastTap;
-              if (tapLength < 400 && tapLength > 0) {
-                evt.preventDefault();
-                if (clips.length === 0) {
-                  console.log(`${id} has no animation clips.`);
-                  return;
-                }
-                currentClipIndex = (currentClipIndex + 1) % clips.length;
-                el.setAttribute('animation-mixer', { clip: clips[currentClipIndex], loop: 'repeat' });
-                console.log(`${id} switched to animation clip: ${clips[currentClipIndex]}`);
-              }
-              lastTap = currentTime;
-            });
-          });
-        });
-      });
+      // Helper: get animation clips from animation-mixer component
+      function getAnimationClips(el) {
+        const mixerComp = el.components['animation-mixer'];
+        if (!mixerComp || !mixerComp.mixer) return [];
+        return mixerComp.mixer._actions.map(action => action._clip.name);
+      }
     </script>
   </body>
 </html>
