@@ -21,7 +21,7 @@
       arjs="sourceType: webcam; debugUIEnabled: false;"
       device-orientation-permission-ui="enabled: true"
       gesture-detector
-      environment="preset: none"  
+      environment="preset: none"
       renderer="logarithmicDepthBuffer: true"
     >
       <a-assets>
@@ -47,9 +47,8 @@
 
       <!-- Elephant Marker -->
       <a-marker type="pattern" url="assets/markers/elephant_marker.patt">
-        <a-entity id="elephant-container" rotatable scalable gesture-detector>
+        <a-entity id="elephant-container" gesture-rotate-scale>
 
-          <!-- Grass Ground -->
           <a-plane
             src="#grass-texture"
             rotation="-90 0 0"
@@ -60,7 +59,6 @@
             position="0 0 0"
           ></a-plane>
 
-          <!-- Elephant Model -->
           <a-entity
             id="elephant"
             gltf-model="#elephant-model"
@@ -76,9 +74,8 @@
 
       <!-- Tiger Marker -->
       <a-marker type="pattern" url="assets/markers/tiger_marker.patt">
-        <a-entity id="tiger-container" rotatable scalable gesture-detector>
+        <a-entity id="tiger-container" gesture-rotate-scale>
 
-          <!-- Grass Ground -->
           <a-plane
             src="#grass-texture"
             rotation="-90 0 0"
@@ -89,7 +86,6 @@
             position="0 0 0"
           ></a-plane>
 
-          <!-- Tiger Model -->
           <a-entity
             id="tiger"
             gltf-model="#tiger-model"
@@ -105,9 +101,8 @@
 
       <!-- Rhino Marker -->
       <a-marker type="pattern" url="assets/markers/rhino_marker.patt">
-        <a-entity id="rhino-container" rotatable scalable gesture-detector>
+        <a-entity id="rhino-container" gesture-rotate-scale>
 
-          <!-- Grass Ground -->
           <a-plane
             src="#grass-texture"
             rotation="-90 0 0"
@@ -118,7 +113,6 @@
             position="0 0 0"
           ></a-plane>
 
-          <!-- Rhino Model -->
           <a-entity
             id="rhino"
             gltf-model="#rhino-model"
@@ -134,9 +128,8 @@
 
       <!-- Musk Cow Marker -->
       <a-marker type="pattern" url="assets/markers/muskcow_marker.patt">
-        <a-entity id="muskcow-container" rotatable scalable gesture-detector>
+        <a-entity id="muskcow-container" gesture-rotate-scale>
 
-          <!-- Grass Ground -->
           <a-plane
             src="#grass-texture"
             rotation="-90 0 0"
@@ -147,7 +140,6 @@
             position="0 0 0"
           ></a-plane>
 
-          <!-- Musk Cow Model -->
           <a-entity
             id="muskcow"
             gltf-model="#muskcow-model"
@@ -164,6 +156,97 @@
       <a-entity camera></a-entity>
     </a-scene>
 
-    <script src="scripts/ar-logic.js"></script>
+    <script>
+      // Custom component to handle drag rotate and pinch scale on marker container
+      AFRAME.registerComponent('gesture-rotate-scale', {
+        init: function () {
+          this.isDragging = false;
+          this.lastX = 0;
+          this.lastY = 0;
+
+          const el = this.el;
+
+          // Mouse Events
+          el.sceneEl.canvas.addEventListener('mousedown', (e) => {
+            this.isDragging = true;
+            this.lastX = e.clientX;
+            this.lastY = e.clientY;
+          });
+          window.addEventListener('mouseup', () => {
+            this.isDragging = false;
+          });
+          el.sceneEl.canvas.addEventListener('mousemove', (e) => {
+            if (!this.isDragging) return;
+            let deltaX = e.clientX - this.lastX;
+            let deltaY = e.clientY - this.lastY;
+            el.object3D.rotation.y += deltaX * 0.01;
+            el.object3D.rotation.x += deltaY * 0.01;
+            this.lastX = e.clientX;
+            this.lastY = e.clientY;
+          });
+
+          // Touch Events
+          el.sceneEl.canvas.addEventListener('touchstart', (e) => {
+            this.isDragging = true;
+            this.lastX = e.touches[0].clientX;
+            this.lastY = e.touches[0].clientY;
+          });
+          el.sceneEl.canvas.addEventListener('touchend', () => {
+            this.isDragging = false;
+          });
+          el.sceneEl.canvas.addEventListener('touchmove', (e) => {
+            if (!this.isDragging) return;
+            let deltaX = e.touches[0].clientX - this.lastX;
+            let deltaY = e.touches[0].clientY - this.lastY;
+            el.object3D.rotation.y += deltaX * 0.01;
+            el.object3D.rotation.x += deltaY * 0.01;
+            this.lastX = e.touches[0].clientX;
+            this.lastY = e.touches[0].clientY;
+          });
+        }
+      });
+
+      // Sound toggle component
+      AFRAME.registerComponent('sound-toggle', {
+        init: function () {
+          this.soundPlaying = false;
+          this.el.addEventListener('click', (event) => {
+            event.stopPropagation();
+            const sound = this.el.components.sound;
+            if (!sound) {
+              console.warn(`No sound component found on ${this.el.id}`);
+              return;
+            }
+            if (this.soundPlaying) {
+              sound.pauseSound();
+              console.log(`Sound paused on ${this.el.id}`);
+            } else {
+              sound.playSound();
+              console.log(`Sound played on ${this.el.id}`);
+            }
+            this.soundPlaying = !this.soundPlaying;
+          });
+          console.log(`sound-toggle registered on ${this.el.id || this.el.tagName}`);
+        }
+      });
+
+      // Play sounds on first tap for mobile autoplay policy
+      window.addEventListener('DOMContentLoaded', () => {
+        document.querySelector('a-scene').addEventListener('loaded', () => {
+          document.body.addEventListener('click', () => {
+            ['elephant', 'tiger', 'rhino', 'muskcow'].forEach(id => {
+              const entity = document.querySelector('#' + id);
+              if (entity && entity.components.sound && !entity.components.sound.isPlaying) {
+                entity.components.sound.playSound();
+                if (entity.components['sound-toggle']) {
+                  entity.components['sound-toggle'].soundPlaying = true;
+                }
+                console.log(`Auto-playing sound for ${id}`);
+              }
+            });
+          }, { once: true });
+        });
+      });
+    </script>
   </body>
 </html>
