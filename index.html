@@ -156,13 +156,25 @@
     </a-scene>
 
     <script>
-      // Get animation clip names from animation-mixer component
+      // Helper: get animation clips from animation-mixer
       function getAnimationClips(el) {
         const mixerComp = el.components['animation-mixer'];
         if (!mixerComp || !mixerComp.mixer) return [];
-        // Extract unique clip names from mixer actions
-        const clips = mixerComp.mixer._actions.map(action => action._clip.name);
-        return [...new Set(clips)];
+        return mixerComp.mixer._actions.map(action => action._clip.name);
+      }
+
+      // Double-tap detection helper for any element
+      function setupDoubleTap(el, callback) {
+        let lastTap = 0;
+        el.addEventListener('click', (event) => {
+          const currentTime = new Date().getTime();
+          const tapLength = currentTime - lastTap;
+          if (tapLength < 400 && tapLength > 0) {
+            event.preventDefault();
+            callback(event);
+          }
+          lastTap = currentTime;
+        });
       }
 
       AFRAME.registerComponent('gesture-rotate-scale', {
@@ -281,14 +293,15 @@
             });
           }, { once: true });
 
-          // Animation clip toggling for each model
+          // Setup double-tap animation toggling
           ['elephant', 'tiger', 'rhino', 'muskcow'].forEach(id => {
             const el = document.querySelector('#' + id);
             if (!el) return;
 
-            let currentClipIndex = 0;
             let clips = [];
+            let currentClipIndex = 0;
 
+            // Wait for model to load to get clips
             el.addEventListener('model-loaded', () => {
               clips = getAnimationClips(el);
               console.log(`Animations for ${id}:`, clips);
@@ -297,15 +310,22 @@
               }
             });
 
-            el.addEventListener('click', (event) => {
-              event.stopPropagation();
-              if (clips.length === 0) {
-                console.log(`${id} has no animation clips.`);
-                return;
+            // Setup double-tap to cycle animations
+            let lastTap = 0;
+            el.addEventListener('click', (evt) => {
+              const currentTime = new Date().getTime();
+              const tapLength = currentTime - lastTap;
+              if (tapLength < 400 && tapLength > 0) {
+                evt.preventDefault();
+                if (clips.length === 0) {
+                  console.log(`${id} has no animation clips.`);
+                  return;
+                }
+                currentClipIndex = (currentClipIndex + 1) % clips.length;
+                el.setAttribute('animation-mixer', { clip: clips[currentClipIndex], loop: 'repeat' });
+                console.log(`${id} switched to animation clip: ${clips[currentClipIndex]}`);
               }
-              currentClipIndex = (currentClipIndex + 1) % clips.length;
-              el.setAttribute('animation-mixer', { clip: clips[currentClipIndex], loop: 'repeat' });
-              console.log(`${id} switched to animation clip: ${clips[currentClipIndex]}`);
+              lastTap = currentTime;
             });
           });
         });
