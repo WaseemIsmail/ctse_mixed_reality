@@ -91,6 +91,10 @@
             position="0 0.1 0"
             animation-mixer
             sound-toggle
+            animation__y="property: position.y; to: 3; dir: alternate; dur: 2000; loop: true; easing: easeInOutSine"
+            animation__curve="property: position; from: -2 1.5 0; to: 2 1.5 0; dir: alternate; dur: 6000; loop: true; easing: easeInOutQuad"
+            animation__face="property: rotation.y; from: 0; to: 180; dur: 3000; loop: true; delay: 3000; easing: linear"
+            animation__tilt="property: rotation.z; from: -10; to: 10; dir: alternate; dur: 1800; loop: true; easing: easeInOutSine"
           ></a-entity>
           <a-entity
             id="elephantSoundEntity"
@@ -118,8 +122,12 @@
             scale="0.8 0.8 0.8"
             rotation="0 180 0"
             position="0 0.1 0"
-            animation-mixer="clip: walk; loop: repeat"
+            animation-mixer
             sound-toggle
+            animation__y="property: position.y; to: 3; dir: alternate; dur: 2000; loop: true; easing: easeInOutSine"
+            animation__curve="property: position; from: -2 1.5 0; to: 2 1.5 0; dir: alternate; dur: 6000; loop: true; easing: easeInOutQuad"
+            animation__face="property: rotation.y; from: 0; to: 180; dur: 3000; loop: true; delay: 3000; easing: linear"
+            animation__tilt="property: rotation.z; from: -10; to: 10; dir: alternate; dur: 1800; loop: true; easing: easeInOutSine"
           ></a-entity>
           <a-entity id="tigerSoundEntity" sound="src: #tiger-sound"></a-entity>
         </a-entity>
@@ -146,6 +154,10 @@
             position="0 0.1 0"
             animation-mixer
             sound-toggle
+            animation__y="property: position.y; to: 3; dir: alternate; dur: 2000; loop: true; easing: easeInOutSine"
+            animation__curve="property: position; from: -2 1.5 0; to: 2 1.5 0; dir: alternate; dur: 6000; loop: true; easing: easeInOutQuad"
+            animation__face="property: rotation.y; from: 0; to: 180; dur: 3000; loop: true; delay: 3000; easing: linear"
+            animation__tilt="property: rotation.z; from: -10; to: 10; dir: alternate; dur: 1800; loop: true; easing: easeInOutSine"
           ></a-entity>
           <a-entity id="rhinoSoundEntity" sound="src: #rhino-sound"></a-entity>
         </a-entity>
@@ -172,6 +184,10 @@
             position="0 0.1 0"
             animation-mixer
             sound-toggle
+            animation__y="property: position.y; to: 3; dir: alternate; dur: 2000; loop: true; easing: easeInOutSine"
+            animation__curve="property: position; from: -2 1.5 0; to: 2 1.5 0; dir: alternate; dur: 6000; loop: true; easing: easeInOutQuad"
+            animation__face="property: rotation.y; from: 0; to: 180; dur: 3000; loop: true; delay: 3000; easing: linear"
+            animation__tilt="property: rotation.z; from: -10; to: 10; dir: alternate; dur: 1800; loop: true; easing: easeInOutSine"
           ></a-entity>
           <a-entity id="cowSoundEntity" sound="src: #cow-sound"></a-entity>
         </a-entity>
@@ -181,17 +197,6 @@
     </a-scene>
 
     <script>
-      const tigerEl = document.querySelector('#tiger');
-
-  // List all animation clips to cycle through
-  const tigerClips = ['attack', 'run', 'walk', 'walk fast'];
-  let currentClipIndex = 2; // starting with 'walk'
-
-  tigerEl.addEventListener('click', () => {
-    currentClipIndex = (currentClipIndex + 1) % tigerClips.length;
-    tigerEl.setAttribute('animation-mixer', `clip: ${tigerClips[currentClipIndex]}; loop: repeat`);
-    console.log(`Tiger animation switched to: ${tigerClips[currentClipIndex]}`);
-  });
       // Get animation clip names from animation-mixer component
       function getAnimationClips(el) {
         const mixerComp = el.components["animation-mixer"];
